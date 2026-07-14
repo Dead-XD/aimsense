@@ -1,336 +1,276 @@
-// Cursor glow effect
-const cursorGlow = document.querySelector('.cursor-glow');
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // ==========================================
+  // 1. Magnetic Elements
+  // ==========================================
+  const magneticEls = document.querySelectorAll('.magnetic-el');
 
-document.addEventListener('mousemove', (e) => {
-  cursorGlow.style.left = e.clientX - 10 + 'px';
-  cursorGlow.style.top = e.clientY - 10 + 'px';
-  cursorGlow.style.opacity = '1';
-});
-
-document.addEventListener('mouseleave', () => {
-  cursorGlow.style.opacity = '0';
-});
-
-// Navbar scroll effect
-const navbar = document.querySelector('.navbar');
-let lastScrollY = window.scrollY;
-
-window.addEventListener('scroll', () => {
-  if (window.scrollY > lastScrollY && window.scrollY > 100) {
-    navbar.style.transform = 'translateY(-100%)';
-  } else {
-    navbar.style.transform = 'translateY(0)';
-  }
-  lastScrollY = window.scrollY;
-});
-
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+  if (window.matchMedia("(pointer: fine)").matches) {
+    // Magnetic effect
+    magneticEls.forEach(el => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const x = (e.clientX - rect.left - rect.width / 2) * 0.3; // magnetic pull strength
+        const y = (e.clientY - rect.top - rect.height / 2) * 0.3;
+        
+        gsap.to(el, { x: x, y: y, duration: 0.3, ease: "power2.out" });
       });
-    }
-  });
-});
 
-// View Features button functionality
-const viewFeaturesBtn = document.getElementById('viewFeaturesBtn');
-if (viewFeaturesBtn) {
-  viewFeaturesBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    const featuresSection = document.getElementById('features');
-    if (featuresSection) {
-      featuresSection.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+      el.addEventListener('mouseleave', () => {
+        gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
       });
-    }
-  });
-}
-
-// Intersection Observer for animations
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-    }
-  });
-}, observerOptions);
-
-// Observe elements for animation
-document.querySelectorAll('.feature-card, .support-card, .pricing-card').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(30px)';
-  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  observer.observe(el);
-});
-
-// Enhanced floating particles animation
-function createParticle() {
-  const particle = document.createElement('div');
-  particle.style.position = 'absolute';
-  particle.style.width = Math.random() * 6 + 3 + 'px';
-  particle.style.height = particle.style.width;
-  
-  // Random particle colors
-  const colors = ['#00d4ff', '#7c3aed', '#ff6b35'];
-  const color = colors[Math.floor(Math.random() * colors.length)];
-  
-  particle.style.background = `radial-gradient(circle, ${color}, transparent)`;
-  particle.style.borderRadius = '50%';
-  particle.style.left = Math.random() * 100 + '%';
-  particle.style.top = '100%';
-  particle.style.pointerEvents = 'none';
-  particle.style.filter = 'blur(1px)';
-  particle.style.animation = `particleFloat ${Math.random() * 15 + 15}s linear infinite`;
-  
-  document.querySelector('.floating-particles').appendChild(particle);
-  
-  setTimeout(() => {
-    particle.remove();
-  }, 30000);
-}
-
-// Create particles periodically
-setInterval(createParticle, 1500);
-
-// Add enhanced particle float animation
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes particleFloat {
-    0% {
-      transform: translateY(0) rotate(0deg) scale(0);
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    90% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-100vh) rotate(360deg) scale(0);
-      opacity: 0;
-    }
+    });
   }
-`;
-document.head.appendChild(style);
 
-// Modal functionality
-const modal = document.getElementById('downloadModal');
-const downloadBtns = document.querySelectorAll('.download-btn, .btn-primary, .nav-cta, .pricing-btn');
-const closeModal = document.querySelector('.modal-close');
-
-// Show modal when download buttons are clicked
-downloadBtns.forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  });
-});
-
-// Close modal
-function closeDownloadModal() {
-  modal.classList.remove('active');
-  document.body.style.overflow = 'auto';
-}
-
-closeModal.addEventListener('click', closeDownloadModal);
-
-// Close modal when clicking outside
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) {
-    closeDownloadModal();
-  }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.classList.contains('active')) {
-    closeDownloadModal();
-  }
-});
-
-// Mobile menu toggle
-const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-const navLinks = document.querySelector('.nav-links');
-
-mobileMenuToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('active');
-  mobileMenuToggle.classList.toggle('active');
-});
-
-// Enhanced typing effect for hero title
-function typeWriter(element, text, speed = 100) {
-  let i = 0;
-  element.innerHTML = '';
-  
-  function type() {
-    if (i < text.length) {
-      element.innerHTML += text.charAt(i);
-      i++;
-      setTimeout(type, speed);
-    }
-  }
-  
-  type();
-}
-
-// Enhanced glitch effect for logo
-const logo = document.querySelector('.logo-text');
-logo.addEventListener('mouseenter', () => {
-  logo.style.animation = 'glitch 0.5s ease-in-out, gradientShift 4s ease-in-out infinite';
-});
-
-logo.addEventListener('animationend', () => {
-  logo.style.animation = 'gradientShift 4s ease-in-out infinite';
-});
-
-// Add enhanced glitch animation
-const glitchStyle = document.createElement('style');
-glitchStyle.textContent = `
-  @keyframes glitch {
-    0%, 100% { transform: translate(0); }
-    20% { transform: translate(-3px, 3px); }
-    40% { transform: translate(-3px, -3px); }
-    60% { transform: translate(3px, 3px); }
-    80% { transform: translate(3px, -3px); }
-  }
-`;
-document.head.appendChild(glitchStyle);
-
-// Enhanced counter animation for stats
-function animateCounter(element, target, duration = 2000) {
-  let start = 0;
-  const increment = target / (duration / 16);
-  
-  function updateCounter() {
-    start += increment;
-    if (start < target) {
-      element.textContent = Math.floor(start).toLocaleString();
-      requestAnimationFrame(updateCounter);
+  // ==========================================
+  // 2. Navbar Scroll Effect
+  // ==========================================
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
     } else {
-      element.textContent = target.toLocaleString();
+      navbar.classList.remove('scrolled');
     }
-  }
-  
-  updateCounter();
-}
+  });
 
-// Animate stats when they come into view
-const statsObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const statNumber = entry.target.querySelector('.stat-number');
-      const text = statNumber.textContent;
-      
-      if (text.includes('75K+')) {
-        animateCounter(statNumber, 75000);
-        setTimeout(() => {
-          statNumber.textContent = '75K+';
-        }, 2000);
-      } else if (text.includes('99.9%')) {
-        let count = 0;
-        const interval = setInterval(() => {
-          count += 0.1;
-          statNumber.textContent = count.toFixed(1) + '%';
-          if (count >= 99.9) {
-            clearInterval(interval);
-            statNumber.textContent = '99.9%';
-          }
-        }, 20);
+  // ==========================================
+  // 3. GSAP Scroll Animations
+  // ==========================================
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Fade Up Elements
+  const fadeUpEls = document.querySelectorAll('.fade-up');
+  fadeUpEls.forEach((el) => {
+    gsap.fromTo(el, 
+      { opacity: 0, y: 50 },
+      { 
+        opacity: 1, 
+        y: 0, 
+        duration: 1, 
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 85%", // Trigger when element is 85% down viewport
+          toggleActions: "play none none reverse"
+        }
       }
+    );
+  });
+
+  // Number Counter Animation
+  const counters = document.querySelectorAll('.stat-val.counter');
+  counters.forEach(counter => {
+    const target = +counter.getAttribute('data-target');
+    
+    ScrollTrigger.create({
+      trigger: counter,
+      start: "top 90%",
+      onEnter: () => {
+        gsap.to(counter, {
+          innerHTML: target,
+          duration: 2.5,
+          snap: { innerHTML: 1 },
+          ease: "power2.out",
+          onUpdate: function() {
+            counter.innerHTML = Math.ceil(this.targets()[0].innerHTML).toLocaleString();
+          }
+        });
+      },
+      once: true
+    });
+  });
+
+  // Showcase 3D Parallax effect on mouse move
+  const showcaseContainer = document.querySelector('.showcase-container');
+  const mockupWindow = document.querySelector('.mockup-window');
+  
+  if (showcaseContainer && mockupWindow && window.matchMedia("(pointer: fine)").matches) {
+    showcaseContainer.addEventListener('mousemove', (e) => {
+      const rect = showcaseContainer.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
       
-      statsObserver.unobserve(entry.target);
+      // Tilt effect
+      gsap.to(mockupWindow, {
+        rotateY: x * 10,
+        rotateX: -y * 10,
+        duration: 0.5,
+        ease: "power2.out"
+      });
+    });
+    
+    showcaseContainer.addEventListener('mouseleave', () => {
+      gsap.to(mockupWindow, {
+        rotateY: 0,
+        rotateX: 5, // return to default slight tilt
+        duration: 1,
+        ease: "power3.out"
+      });
+    });
+  }
+
+  // ==========================================
+  // 4. Pricing Toggle Logic
+  // ==========================================
+  const toggleSwitch = document.querySelector('.toggle-switch');
+  const amounts = document.querySelectorAll('.amount-val');
+  const periods = document.querySelectorAll('.period');
+  let isLifetime = false;
+
+  if (toggleSwitch) {
+    toggleSwitch.addEventListener('click', () => {
+      isLifetime = !isLifetime;
+      
+      // Update UI
+      const spans = document.querySelectorAll('.billing-toggle span:not(.discount-badge)');
+      spans[0].classList.toggle('active', !isLifetime);
+      spans[1].classList.toggle('active', isLifetime);
+      
+      gsap.to(toggleSwitch, {
+        '--switch-left': isLifetime ? '28px' : '4px',
+        duration: 0.3,
+        onUpdate: function() {
+          // Manually update the pseudo element via CSS variable (fallback to direct styling)
+          toggleSwitch.style.setProperty('--switch-left', this.targets()[0].style.getPropertyValue('--switch-left'));
+        }
+      });
+      // Fallback for pseudo-element animation
+      const afterRule = document.createElement('style');
+      afterRule.innerHTML = `.toggle-switch::after { left: ${isLifetime ? '28px' : '4px'} !important; }`;
+      document.head.appendChild(afterRule);
+
+      // Update Prices (Example logic)
+      amounts.forEach((el, index) => {
+        let basePrice = [5, 15, 25][index];
+        let newPrice = isLifetime ? (basePrice * 12 * 0.8) : basePrice; // 20% discount for lifetime
+        
+        gsap.to(el, {
+          innerHTML: newPrice,
+          duration: 0.5,
+          snap: { innerHTML: 1 },
+          onUpdate: function() {
+            el.innerHTML = Math.ceil(this.targets()[0].innerHTML);
+          }
+        });
+      });
+
+      periods.forEach(el => {
+        el.innerText = isLifetime ? '/life' : '/mo';
+      });
+    });
+  }
+
+  // ==========================================
+  // 5. Three.js Particle Background
+  // ==========================================
+  function initThreeJS() {
+    const canvas = document.getElementById('bg-canvas');
+    if (!canvas) return;
+
+    const scene = new THREE.Scene();
+    
+    // Camera
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 50;
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Particles
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = window.innerWidth < 768 ? 400 : 900;
+    
+    const posArray = new Float32Array(particlesCount * 3);
+    for(let i = 0; i < particlesCount * 3; i++) {
+      // spread particles over a large area
+      posArray[i] = (Math.random() - 0.5) * 150; 
     }
-  });
-});
+    
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    
+    // Use a custom shader material for soft glowing particles
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.05,
+      color: 0xa855f7, // Primary Purple
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending
+    });
+    
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
 
-document.querySelectorAll('.stat').forEach(stat => {
-  statsObserver.observe(stat);
-});
+    // Mouse interaction for particles
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    document.addEventListener('mousemove', (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    });
 
-// Enhanced parallax effect for hero shapes
-window.addEventListener('scroll', () => {
-  const scrolled = window.pageYOffset;
-  const shapes = document.querySelectorAll('.shape');
-  
-  shapes.forEach((shape, index) => {
-    const speed = 0.5 + (index * 0.2);
-    shape.style.transform = `translateY(${scrolled * speed}px)`;
-  });
-});
+    const clock = new THREE.Clock();
 
-// Add smooth reveal animations for sections
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('revealed');
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      const elapsedTime = clock.getElapsedTime();
+      
+      // Gentle rotation
+      particlesMesh.rotation.y = elapsedTime * 0.05;
+      particlesMesh.rotation.x = elapsedTime * 0.02;
+
+      // Mouse interaction
+      if (mouseX > 0) {
+        particlesMesh.rotation.x += (mouseY * 0.00005 - particlesMesh.rotation.x) * 0.05;
+        particlesMesh.rotation.y += (mouseX * 0.00005 - particlesMesh.rotation.y) * 0.05;
+      }
+
+      renderer.render(scene, camera);
     }
-  });
-}, {
-  threshold: 0.1,
-  rootMargin: '0px 0px -100px 0px'
-});
+    
+    animate();
 
-document.querySelectorAll('.section-header, .download-content, .support-card').forEach(el => {
-  revealObserver.observe(el);
-});
-
-// Add reveal animation styles
-const revealStyle = document.createElement('style');
-revealStyle.textContent = `
-  .section-header,
-  .download-content,
-  .support-card {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    // Resize handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   }
   
-  .section-header.revealed,
-  .download-content.revealed,
-  .support-card.revealed {
-    opacity: 1;
-    transform: translateY(0);
+  // Initialize ThreeJS
+  initThreeJS();
+
+  // ==========================================
+  // 6. Discord Modal Logic
+  // ==========================================
+  const discordModal = document.getElementById('discord-modal');
+  const modalCancel = document.getElementById('modal-cancel');
+  const modalConfirm = document.getElementById('modal-confirm');
+  const discordLink = "https://discord.com/invite/hgK7rpBPvB";
+
+  function openDiscordModal(e) {
+    if(e) e.preventDefault();
+    discordModal.classList.add('active');
   }
-`;
-document.head.appendChild(revealStyle);
 
-// Enhanced button hover effects
-document.querySelectorAll('.btn-primary, .btn-secondary, .pricing-btn, .download-btn, .support-btn').forEach(btn => {
-  btn.addEventListener('mouseenter', () => {
-    btn.style.transform = 'translateY(-3px) scale(1.02)';
+  function closeDiscordModal() {
+    discordModal.classList.remove('active');
+  }
+
+  if(modalCancel) modalCancel.addEventListener('click', closeDiscordModal);
+  if(modalConfirm) modalConfirm.addEventListener('click', () => {
+    window.open(discordLink, '_blank');
+    closeDiscordModal();
   });
-  
-  btn.addEventListener('mouseleave', () => {
-    btn.style.transform = 'translateY(0) scale(1)';
+
+  // Attach to all discord links
+  document.querySelectorAll('.discord-link').forEach(btn => {
+    btn.addEventListener('click', openDiscordModal);
   });
+
 });
-
-// Add dynamic background gradient animation
-const backgroundEffects = document.querySelector('.background-effects');
-let gradientAngle = 0;
-
-function animateBackground() {
-  gradientAngle += 0.5;
-  backgroundEffects.style.filter = `hue-rotate(${gradientAngle}deg)`;
-  requestAnimationFrame(animateBackground);
-}
-
-animateBackground();
-
-console.log('🎯 AimSense v2.0 loaded successfully! Enhanced with premium features and design.');
